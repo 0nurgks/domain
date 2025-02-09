@@ -1,5 +1,6 @@
 const CardModel = require("../modules/CardModule.js");
 const AuthModel = require("../modules/AuthModule.js");
+const mongoose = require('mongoose');
 
 module.exports.getOneCard = async (req,res) =>{
     try {
@@ -101,3 +102,27 @@ module.exports.postCard = async (req, res) => {
         res.status(500).json({ message: "Connection error on server", error: error.message || error });
     }
 };
+module.exports.deleteCard = async (req, res) => {
+    try {
+        const { cardId } = req.params;
+
+        console.log("Silme işlemi için gelen cardId:", cardId);  // Kart ID'sini logla
+
+        if (!mongoose.Types.ObjectId.isValid(cardId)) {
+            return res.status(400).json({ message: "Geçersiz Card ID" });
+        }
+
+        const deletedCard = await CardModel.findByIdAndDelete(cardId);
+
+        if (!deletedCard) {
+            return res.status(404).json({ message: "Kart bulunamadı" });
+        }
+
+        res.status(200).json({ message: "Kart başarıyla silindi" });
+    } catch (error) {
+        console.error("[ERROR] DeleteCard işlemi sırasında hata:", error);
+        res.status(500).json({ message: "Sunucu hatası", error: error.message || error });
+    }
+};
+
+  
